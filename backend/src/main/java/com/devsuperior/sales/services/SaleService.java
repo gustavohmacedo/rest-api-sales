@@ -2,9 +2,13 @@ package com.devsuperior.sales.services;
 
 import com.devsuperior.sales.entities.Sale;
 import com.devsuperior.sales.repositories.SaleRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 
 @Service
 public class SaleService {
@@ -14,7 +18,12 @@ public class SaleService {
         this.saleRepository = saleRepository;
     }
 
-    public List<Sale> findSales() {
-        return saleRepository.findAll();
+    public Page<Sale> findSales(String minDate, String maxDate, Pageable pagination) {
+        LocalDate today = LocalDate.ofInstant(Instant.now(), ZoneId.systemDefault());
+        LocalDate minimumDate = minDate.equals("") ? today.minusDays(365) : LocalDate.parse(minDate);
+        LocalDate maximumDate = maxDate.equals("") ? today : LocalDate.parse(maxDate);
+        return saleRepository.findSalesByDates(minimumDate, maximumDate, pagination);
     }
+
 }
+
